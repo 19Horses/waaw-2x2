@@ -62,11 +62,12 @@ function Home() {
                         '--tile-column': tile.column,
                         '--tile-delay': getTileDelay(tile.index),
                         '--tile-duration': getTileDuration(tile.index),
-                        '--tile-image': `url(${firstDJ.image})`,
                         '--tile-row': tile.row,
                       } as CSSProperties
                     }
-                  />
+                  >
+                    <img className="dj-card__tile-image" src={firstDJ.image} alt="" />
+                  </span>
                 ))}
               </div>
             ) : null}

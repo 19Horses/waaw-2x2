@@ -1,4 +1,4 @@
-const projectId = 'PLACEHOLDER';
+const projectId = 'e0jpcgds';
 export const SANITY_URL = `https://${projectId}.apicdn.sanity.io/v2025-06-01`;
 
 export const getApiUrl = (query: string) =>

@@ -56,6 +56,16 @@ const getGridTiltDuration = (dj: SetDJType, gridIndex: number) => {
   return `${22 + (hash % 17)}s`;
 };
 
+const getGridTiltDelay = (dj: SetDJType, gridIndex: number) => {
+  const seed = `${dj._id}-${gridIndex}-${dj.name}`;
+  const hash = Array.from(seed).reduce(
+    (total, character) => total + character.charCodeAt(0),
+    0
+  );
+
+  return `-${hash % 18}s`;
+};
+
 const getOvernightSetOrder = (set: SetType) => {
   const startTime = Number(set.time.split('-')[0]);
 
@@ -199,6 +209,7 @@ const DJCard = ({ dj, gridIndex }: DJCardProps) => (
     style={
       {
         '--dj-name-delay': gridIndex === 0 ? '700ms' : '1100ms',
+        '--grid-tilt-delay': getGridTiltDelay(dj, gridIndex),
         '--grid-tilt-duration': getGridTiltDuration(dj, gridIndex),
         '--grid-wave-duration': getGridWaveDuration(dj, gridIndex),
       } as CSSProperties

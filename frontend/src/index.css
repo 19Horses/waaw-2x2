@@ -61,8 +61,8 @@ body {
   width: auto;
   min-height: 100vh;
   margin-left: clamp(8rem, 22vw, 22rem);
-  margin-right: clamp(1.5rem, 4vw, 5rem);
-  padding: clamp(1.25rem, 3vw, 3rem) clamp(1rem, 2.5vw, 2.5rem);
+  margin-right: clamp(2rem, 5vw, 7rem);
+  padding: clamp(2rem, 4vw, 4.5rem) clamp(1.5rem, 3vw, 4rem);
 }
 
 .home__status {
@@ -86,8 +86,11 @@ body {
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   width: 100%;
+  max-width: min(100%, 132rem);
   gap: clamp(0.75rem, 2vw, 2rem);
-  margin: auto 0;
+  margin: auto auto;
+  justify-content: center;
+  justify-items: center;
   transform: translateY(0.35rem) scale(1.025);
   transform-origin: center top;
   transition: transform 900ms ease;
@@ -115,6 +118,13 @@ body {
 
 .dj-card {
   perspective: 1200px;
+  width: min(100%, 58rem);
+  justify-self: center;
+}
+
+.dj-card__layout {
+  display: grid;
+  justify-items: center;
   width: 100%;
 }
 
@@ -123,10 +133,12 @@ body {
   grid-template-columns: repeat(7, 1fr);
   grid-template-rows: repeat(7, 1fr);
   gap: clamp(0.25rem, 0.8vw, 0.55rem);
+  width: min(100%, 58rem, calc(100vh - 13rem));
   aspect-ratio: 1;
   transform-origin: center;
   transform-style: preserve-3d;
   animation: dj-grid-tilt var(--grid-tilt-duration) ease-in-out infinite;
+  animation-delay: var(--grid-tilt-delay);
 }
 
 .dj-card__tile {
@@ -410,19 +422,19 @@ body {
 @keyframes dj-grid-tilt {
   0%,
   100% {
-    transform: rotateX(0deg) rotateY(0deg);
+    transform: rotateX(0deg) rotateY(0deg) translateZ(0);
   }
 
-  28% {
-    transform: rotateX(3deg) rotateY(-8deg);
+  25% {
+    transform: rotateX(1.8deg) rotateY(-12deg) translateZ(0);
   }
 
-  58% {
-    transform: rotateX(-2.4deg) rotateY(8.5deg);
+  50% {
+    transform: rotateX(0deg) rotateY(0deg) translateZ(0);
   }
 
-  78% {
-    transform: rotateX(1.6deg) rotateY(-4deg);
+  75% {
+    transform: rotateX(-1.8deg) rotateY(12deg) translateZ(0);
   }
 }
 
@@ -496,6 +508,10 @@ body {
     justify-self: center;
     font-size: clamp(2.4rem, 14vw, 4.5rem);
     line-height: 0.8;
+  }
+
+  .dj-card {
+    width: 100%;
   }
 
   .dj-card__layout {

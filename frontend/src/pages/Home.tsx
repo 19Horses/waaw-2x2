@@ -3,6 +3,7 @@ import p5 from 'p5';
 import type { CSSProperties } from 'react';
 import { useEffect, useRef } from 'react';
 import dollydotsFontUrl from '../fonts/dollydots.ttf';
+import type { DJType } from '../queries/useGetDJs';
 import { useGetDJs } from '../queries/useGetDJs';
 
 const DJ_MOSAIC_SIZE = 7;
@@ -23,11 +24,13 @@ const getTileDuration = (index: number) => `${620 + ((index * 31) % 360)}ms`;
 function Home() {
   const { data: djs = [], isLoading, isError } = useGetDJs();
   const firstDJ = djs[0];
+  const secondDJ = djs[1];
+  const djNames = djs.map((dj) => dj.name).join('\n');
 
   if (isLoading) {
     return (
       <main className="home">
-        <WaawMarquee />
+        <WaawMarquee djNames={djNames} />
         <p className="home__status">Loading DJs...</p>
       </main>
     );
@@ -36,7 +39,7 @@ function Home() {
   if (isError) {
     return (
       <main className="home">
-        <WaawMarquee />
+        <WaawMarquee djNames={djNames} />
         <p className="home__status">Could not load DJs.</p>
       </main>
     );
@@ -44,46 +47,60 @@ function Home() {
 
   return (
     <main className="home">
-      <WaawMarquee />
+      <WaawMarquee djNames={djNames} />
 
       <section className="home__content" aria-label="DJs">
-        <p className="home__eyebrow">WAAW DJs</p>
-        {firstDJ ? (
-          <article className="dj-card">
-            {firstDJ.image ? (
-              <div className="dj-card__mosaic" role="img" aria-label={`${firstDJ.name} portrait`}>
-                {DJ_MOSAIC_TILES.map((tile) => (
-                  <span
-                    aria-hidden="true"
-                    className="dj-card__tile"
-                    key={tile.index}
-                    style={
-                      {
-                        '--tile-column': tile.column,
-                        '--tile-delay': getTileDelay(tile.index),
-                        '--tile-duration': getTileDuration(tile.index),
-                        '--tile-row': tile.row,
-                      } as CSSProperties
-                    }
-                  >
-                    <img className="dj-card__tile-image" src={firstDJ.image} alt="" />
-                  </span>
-                ))}
-              </div>
-            ) : null}
-            <h2 className="dj-card__name">{firstDJ.name}</h2>
-          </article>
-        ) : null}
+        <div className="dj-matchup">
+          {firstDJ ? <DJCard dj={firstDJ} /> : null}
+          {firstDJ && secondDJ ? <span className="dj-matchup__x">X</span> : null}
+          {secondDJ ? <DJCard dj={secondDJ} /> : null}
+        </div>
       </section>
     </main>
   );
 }
 
-const WaawMarquee = () => {
+type DJCardProps = {
+  dj: DJType;
+};
+
+const DJCard = ({ dj }: DJCardProps) => (
+  <article className="dj-card">
+    {dj.image ? (
+      <div className="dj-card__mosaic" role="img" aria-label={`${dj.name} portrait`}>
+        {DJ_MOSAIC_TILES.map((tile) => (
+          <span
+            aria-hidden="true"
+            className="dj-card__tile"
+            key={tile.index}
+            style={
+              {
+                '--tile-column': tile.column,
+                '--tile-delay': getTileDelay(tile.index),
+                '--tile-duration': getTileDuration(tile.index),
+                '--tile-row': tile.row,
+              } as CSSProperties
+            }
+          >
+            <img className="dj-card__tile-image" src={dj.image} alt="" />
+          </span>
+        ))}
+      </div>
+    ) : null}
+    <h2 className="dj-card__name">{dj.name}</h2>
+  </article>
+);
+
+type WaawMarqueeProps = {
+  djNames: string;
+};
+
+const WaawMarquee = ({ djNames }: WaawMarqueeProps) => {
   const sketchRootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const root = sketchRootRef.current;
+    const djNameList = djNames.split('\n').filter(Boolean);
 
     if (!root) {
       return undefined;
@@ -121,6 +138,12 @@ const WaawMarquee = () => {
         const letterStep = waawSize * 0.8;
         const wordHeight = waawSize * 0.95 + letterStep * 3;
         const presenterGap = clamp(canvasHeight * 0.02, 12, 24);
+        const presenterY = y + wordHeight + presenterGap;
+        const twoByTwoY = presenterY + columnWidth * 0.32;
+        const namesY = twoByTwoY + columnWidth * 0.72;
+        const nameWidth = canvasWidth * 0.92;
+        const nameFontSize = clamp(canvasWidth * 0.13, 20, 46);
+        const nameLineHeight = nameFontSize * 1.12;
 
         p.fill(255);
         if (dollyFont) {
@@ -133,9 +156,22 @@ const WaawMarquee = () => {
           p.text(letter, centerX, y + letterStep * index);
         });
 
-        const presenterY = y + wordHeight + presenterGap;
         drawFittedText('PRESENTS', centerX, presenterY, columnWidth, columnWidth * 0.36);
-        drawFittedText('2x2', centerX, presenterY + columnWidth * 0.32, columnWidth, columnWidth * 0.86);
+        drawFittedText('2x2', centerX, twoByTwoY, columnWidth, columnWidth * 0.86);
+
+        if (djNameList.length > 0) {
+          p.push();
+          if (dollyFont) {
+            p.textFont(dollyFont);
+          }
+          p.fill(255);
+          p.textAlign(p.CENTER, p.TOP);
+
+          djNameList.forEach((name, index) => {
+            drawFittedText(name.toUpperCase(), centerX, namesY + nameLineHeight * index, nameWidth, nameFontSize);
+          });
+          p.pop();
+        }
       };
 
       p.setup = () => {
@@ -155,8 +191,12 @@ const WaawMarquee = () => {
         const waawSize = clamp(canvasWidth * 0.82, 112, 304);
         const columnWidth = waawSize * 0.58;
         const letterStep = waawSize * 0.8;
-        const wordHeight = waawSize * 0.86 + letterStep * 3;
-        const itemHeight = wordHeight + columnWidth * 1.3;
+        const wordHeight = waawSize * 0.95 + letterStep * 3;
+        const presenterGap = clamp(canvasHeight * 0.02, 12, 24);
+        const nameFontSize = clamp(canvasWidth * 0.13, 20, 46);
+        const nameListHeight = djNameList.length > 0 ? nameFontSize * 1.12 * djNameList.length : 0;
+        const presenterStartOffset = Math.max(wordHeight - canvasHeight * 0.2, 0);
+        const itemHeight = wordHeight + presenterGap + columnWidth * 1.26 + nameListHeight;
         const gap = clamp(canvasHeight * 0.42, 256, 576);
         const cycleHeight = itemHeight + gap;
         const scrollSpeed = cycleHeight / 110;
@@ -165,7 +205,7 @@ const WaawMarquee = () => {
 
         p.clear();
 
-        for (let y = offset - cycleHeight; y < canvasHeight + cycleHeight; y += cycleHeight) {
+        for (let y = offset - presenterStartOffset - cycleHeight; y < canvasHeight + cycleHeight; y += cycleHeight) {
           drawWaawItem(centerX, y);
         }
       };
@@ -178,7 +218,7 @@ const WaawMarquee = () => {
     return () => {
       p5Instance.remove();
     };
-  }, []);
+  }, [djNames]);
 
   return (
     <aside className="waaw-marquee" aria-hidden="true">

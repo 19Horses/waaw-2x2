@@ -55,12 +55,15 @@ body {
 .home__content {
   position: relative;
   z-index: 1;
-  width: min(1100px, calc(100% - clamp(9rem, 23vw, 20rem)));
-  margin-left: clamp(9rem, 25vw, 24rem);
-  padding: clamp(3rem, 8vw, 7rem) clamp(1.25rem, 4vw, 4rem);
+  display: flex;
+  align-items: center;
+  width: auto;
+  min-height: 100vh;
+  margin-left: clamp(8rem, 22vw, 22rem);
+  margin-right: clamp(1.5rem, 4vw, 5rem);
+  padding: clamp(1.25rem, 3vw, 3rem) clamp(1rem, 2.5vw, 2.5rem);
 }
 
-.home__eyebrow,
 .home__status {
   margin: 0 0 2rem;
   font-family: 'Dollydots', Georgia, serif;
@@ -77,8 +80,27 @@ body {
   padding: clamp(3rem, 8vw, 7rem) clamp(1.25rem, 4vw, 4rem);
 }
 
+.dj-matchup {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  width: 100%;
+  gap: clamp(0.75rem, 2vw, 2rem);
+}
+
+.dj-matchup__x {
+  display: grid;
+  place-items: center;
+  align-self: center;
+  justify-self: center;
+  font-family: 'Dollydots', Georgia, serif;
+  font-size: clamp(5rem, 13vw, 15rem);
+  line-height: 0.72;
+  text-transform: uppercase;
+}
+
 .dj-card {
-  width: min(100%, 38rem);
+  width: 100%;
 }
 
 .dj-card__mosaic {
@@ -94,22 +116,34 @@ body {
   overflow: hidden;
   min-width: 0;
   min-height: 0;
-  border-radius: clamp(0.25rem, 0.8vw, 0.55rem);
+  border-radius: clamp(0.06rem, 0.18vw, 0.14rem);
   opacity: 0;
   transform: scale(0.16);
   transform-origin: center;
-  animation: dj-tile-reveal var(--tile-duration) cubic-bezier(0.18, 0.92, 0.22, 1) forwards;
+  animation: dj-tile-reveal var(--tile-duration)
+    cubic-bezier(0.18, 0.92, 0.22, 1) forwards;
   animation-delay: var(--tile-delay);
+}
+
+.dj-card__tile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(1px);
 }
 
 .dj-card__tile-image {
   position: absolute;
+  z-index: 0;
   top: calc(var(--tile-row) * -100%);
   left: calc(var(--tile-column) * -100%);
   width: 700%;
   height: 700%;
   object-fit: cover;
-  filter: grayscale(100%) contrast(1.12);
+  filter: grayscale(100%) saturate(0) contrast(1.18);
   pointer-events: none;
   user-select: none;
 }
@@ -117,9 +151,11 @@ body {
 .dj-card__name {
   margin: 0;
   padding: clamp(1rem, 3vw, 1.6rem) 0 0;
-  font-size: clamp(1.25rem, 3vw, 2.5rem);
+  font-family: 'Dollydots', Georgia, serif;
+  font-size: clamp(1.8rem, 4vw, 4rem);
   font-weight: 400;
-  letter-spacing: 0.03em;
+  line-height: 0.9;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
@@ -149,5 +185,20 @@ body {
   .home__status {
     width: calc(100% - 7.5rem);
     margin-left: 7.5rem;
+  }
+
+  .home__content {
+    align-items: flex-start;
+    min-height: auto;
+    padding-top: 1.25rem;
+  }
+
+  .dj-matchup {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .dj-matchup__x {
+    justify-self: center;
   }
 }

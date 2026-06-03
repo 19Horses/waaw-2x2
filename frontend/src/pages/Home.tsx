@@ -7,38 +7,51 @@ import type { SetDJType, SetType } from '../queries/useGetSets';
 import { useGetSets } from '../queries/useGetSets';
 
 const DJ_MOSAIC_SIZE = 7;
-const DJ_MOSAIC_TILES = Array.from({ length: DJ_MOSAIC_SIZE * DJ_MOSAIC_SIZE }, (_, index) => ({
-  index,
-  row: Math.floor(index / DJ_MOSAIC_SIZE),
-  column: index % DJ_MOSAIC_SIZE,
-}));
+const DJ_MOSAIC_TILES = Array.from(
+  { length: DJ_MOSAIC_SIZE * DJ_MOSAIC_SIZE },
+  (_, index) => ({
+    index,
+    row: Math.floor(index / DJ_MOSAIC_SIZE),
+    column: index % DJ_MOSAIC_SIZE,
+  })
+);
 
 const getTileDelay = (index: number) => {
-  const staggerStep = (index * 17 + (index % DJ_MOSAIC_SIZE) * 23) % DJ_MOSAIC_TILES.length;
+  const staggerStep =
+    (index * 17 + (index % DJ_MOSAIC_SIZE) * 23) % DJ_MOSAIC_TILES.length;
 
   return `${staggerStep * 28}ms`;
 };
 
 const getTileDuration = (index: number) => `${1200 + ((index * 31) % 700)}ms`;
 
-const getTileBreatheDelay = (index: number) => `${((index * 41 + (index % DJ_MOSAIC_SIZE) * 71) % 49) * 180}ms`;
+const getTileBreatheDelay = (index: number) =>
+  `${((index * 41 + (index % DJ_MOSAIC_SIZE) * 71) % 49) * 180}ms`;
 
-const getTileBreatheDuration = (index: number) => `${22000 + ((index * 997) % 14000)}ms`;
+const getTileBreatheDuration = (index: number) =>
+  `${22000 + ((index * 997) % 14000)}ms`;
 
-const getTileDrift = (index: number, salt: number) => `${(((index * salt + salt * 3) % 9) - 4) * 0.065}rem`;
+const getTileDrift = (index: number, salt: number) =>
+  `${(((index * salt + salt * 3) % 9) - 4) * 0.065}rem`;
 
 const getTileWaveDelay = (row: number) => `${row * 130}ms`;
 
 const getGridWaveDuration = (dj: SetDJType, gridIndex: number) => {
   const seed = `${dj._id}-${dj.name}-${gridIndex}`;
-  const hash = Array.from(seed).reduce((total, character) => total + character.charCodeAt(0), 0);
+  const hash = Array.from(seed).reduce(
+    (total, character) => total + character.charCodeAt(0),
+    0
+  );
 
   return `${20 + (hash % 21)}s`;
 };
 
 const getGridTiltDuration = (dj: SetDJType, gridIndex: number) => {
   const seed = `${dj.name}-${dj._id}-${gridIndex}`;
-  const hash = Array.from(seed).reduce((total, character) => total + character.charCodeAt(0), 0);
+  const hash = Array.from(seed).reduce(
+    (total, character) => total + character.charCodeAt(0),
+    0
+  );
 
   return `${22 + (hash % 17)}s`;
 };
@@ -70,12 +83,17 @@ type LineupPhase = 'entering' | 'hidden' | 'visible';
 function Home() {
   const { data: sets = [], isLoading, isError } = useGetSets();
   const [lineupPhase, setLineupPhase] = useState<LineupPhase>('hidden');
-  const orderedSets = [...sets].sort((firstSet, secondSet) => getOvernightSetOrder(firstSet) - getOvernightSetOrder(secondSet));
+  const orderedSets = [...sets].sort(
+    (firstSet, secondSet) =>
+      getOvernightSetOrder(firstSet) - getOvernightSetOrder(secondSet)
+  );
   const featuredSet = orderedSets[0];
   const otherSets = orderedSets.slice(1);
   const firstDJ = featuredSet?.djs[0];
   const secondDJ = featuredSet?.djs[1];
-  const djNames = Array.from(new Set(orderedSets.flatMap((set) => set.djs.map((dj) => dj.name))));
+  const djNames = Array.from(
+    new Set(orderedSets.flatMap((set) => set.djs.map((dj) => dj.name)))
+  );
 
   useEffect(() => {
     const timeoutIds: Array<ReturnType<typeof setTimeout>> = [];
@@ -135,10 +153,15 @@ function Home() {
     <main className="home">
       <WaawMarquee djNames={djNames} />
 
-      <section className={`home__content home__content--lineup-${lineupPhase}`} aria-label="DJs">
+      <section
+        className={`home__content home__content--lineup-${lineupPhase}`}
+        aria-label="DJs"
+      >
         <div className="dj-matchup">
           {firstDJ ? <DJCard dj={firstDJ} gridIndex={0} /> : null}
-          {firstDJ && secondDJ ? <span className="dj-matchup__x">X</span> : null}
+          {firstDJ && secondDJ ? (
+            <span className="dj-matchup__x">X</span>
+          ) : null}
           {secondDJ ? <DJCard dj={secondDJ} gridIndex={1} /> : null}
         </div>
 
@@ -170,7 +193,11 @@ const DJCard = ({ dj, gridIndex }: DJCardProps) => (
     }
   >
     {dj.image ? (
-      <div className="dj-card__mosaic" role="img" aria-label={`${dj.name} portrait`}>
+      <div
+        className="dj-card__mosaic"
+        role="img"
+        aria-label={`${dj.name} portrait`}
+      >
         {DJ_MOSAIC_TILES.map((tile) => (
           <span
             aria-hidden="true"
@@ -216,7 +243,9 @@ const SetPreview = ({ set, setIndex }: SetPreviewProps) => {
 
   return (
     <article
-      className={setIndex === 0 ? 'set-preview set-preview--up-next' : 'set-preview'}
+      className={
+        setIndex === 0 ? 'set-preview set-preview--up-next' : 'set-preview'
+      }
       style={
         {
           '--set-preview-delay': `${setIndex * 90}ms`,
@@ -228,14 +257,28 @@ const SetPreview = ({ set, setIndex }: SetPreviewProps) => {
         <div className="set-preview__images">
           {firstSetDJ ? (
             <div className="set-preview__dj">
-              {firstSetDJ.image ? <img className="set-preview__image" src={firstSetDJ.image} alt={firstSetDJ.name} /> : null}
+              {firstSetDJ.image ? (
+                <img
+                  className="set-preview__image"
+                  src={firstSetDJ.image}
+                  alt={firstSetDJ.name}
+                />
+              ) : null}
               <p className="set-preview__name">{firstSetDJ.name}</p>
             </div>
           ) : null}
-          {firstSetDJ && secondSetDJ ? <span className="set-preview__x">x</span> : null}
+          {firstSetDJ && secondSetDJ ? (
+            <span className="set-preview__x">x</span>
+          ) : null}
           {secondSetDJ ? (
             <div className="set-preview__dj">
-              {secondSetDJ.image ? <img className="set-preview__image" src={secondSetDJ.image} alt={secondSetDJ.name} /> : null}
+              {secondSetDJ.image ? (
+                <img
+                  className="set-preview__image"
+                  src={secondSetDJ.image}
+                  alt={secondSetDJ.name}
+                />
+              ) : null}
               <p className="set-preview__name">{secondSetDJ.name}</p>
             </div>
           ) : null}
@@ -276,9 +319,16 @@ const WaawMarquee = ({ djNames }: WaawMarqueeProps) => {
         p.resizeCanvas(canvasWidth, canvasHeight);
       };
 
-      const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+      const clamp = (value: number, min: number, max: number) =>
+        Math.min(Math.max(value, min), max);
 
-      const drawFittedText = (text: string, centerX: number, y: number, width: number, fontSize: number) => {
+      const drawFittedText = (
+        text: string,
+        centerX: number,
+        y: number,
+        width: number,
+        fontSize: number
+      ) => {
         p.textSize(fontSize);
         const measuredWidth = p.textWidth(text);
         const xScale = measuredWidth > 0 ? width / measuredWidth : 1;
@@ -314,8 +364,20 @@ const WaawMarquee = ({ djNames }: WaawMarqueeProps) => {
           p.text(letter, centerX, y + letterStep * index);
         });
 
-        drawFittedText('PRESENTS', centerX, presenterY, columnWidth, columnWidth * 0.36);
-        drawFittedText('2x2', centerX, twoByTwoY, columnWidth, columnWidth * 0.86);
+        drawFittedText(
+          'PRESENTS',
+          centerX,
+          presenterY,
+          columnWidth,
+          columnWidth * 0.36
+        );
+        drawFittedText(
+          '2x2',
+          centerX,
+          twoByTwoY,
+          columnWidth,
+          columnWidth * 0.86
+        );
 
         if (djNamesRef.current.length > 0) {
           p.push();
@@ -324,7 +386,13 @@ const WaawMarquee = ({ djNames }: WaawMarqueeProps) => {
           p.textAlign(p.CENTER, p.TOP);
 
           djNamesRef.current.forEach((name, index) => {
-            drawFittedText(name.toUpperCase(), centerX, namesY + nameLineHeight * index, nameWidth, nameFontSize);
+            drawFittedText(
+              name.toUpperCase(),
+              centerX,
+              namesY + nameLineHeight * index,
+              nameWidth,
+              nameFontSize
+            );
           });
           p.pop();
         }
@@ -350,9 +418,16 @@ const WaawMarquee = ({ djNames }: WaawMarqueeProps) => {
         const wordHeight = waawSize * 0.95 + letterStep * 3;
         const presenterGap = clamp(canvasHeight * 0.02, 12, 24);
         const nameFontSize = clamp(canvasWidth * 0.095, 15, 32);
-        const nameListHeight = djNamesRef.current.length > 0 ? nameFontSize * 1.18 * djNamesRef.current.length : 0;
-        const presenterStartOffset = Math.max(wordHeight - canvasHeight * 0.2, 0);
-        const itemHeight = wordHeight + presenterGap + columnWidth * 1.26 + nameListHeight;
+        const nameListHeight =
+          djNamesRef.current.length > 0
+            ? nameFontSize * 1.18 * djNamesRef.current.length
+            : 0;
+        const presenterStartOffset = Math.max(
+          wordHeight - canvasHeight * 0.2,
+          0
+        );
+        const itemHeight =
+          wordHeight + presenterGap + columnWidth * 1.26 + nameListHeight;
         const gap = clamp(canvasHeight * 0.08, 48, 120);
         const cycleHeight = itemHeight + gap;
         const scrollSpeed = cycleHeight / 110;
@@ -361,7 +436,11 @@ const WaawMarquee = ({ djNames }: WaawMarqueeProps) => {
 
         p.clear();
 
-        for (let y = offset - presenterStartOffset - cycleHeight; y < canvasHeight + cycleHeight; y += cycleHeight) {
+        for (
+          let y = offset - presenterStartOffset - cycleHeight;
+          y < canvasHeight + cycleHeight;
+          y += cycleHeight
+        ) {
           drawWaawItem(centerX, y);
         }
       };

@@ -134,7 +134,8 @@ body {
   opacity: 0;
   transform: scale(0.16);
   transform-origin: center;
-  animation: dj-tile-reveal var(--tile-duration) cubic-bezier(0.18, 0.92, 0.22, 1) forwards;
+  animation: dj-tile-reveal var(--tile-duration)
+    cubic-bezier(0.18, 0.92, 0.22, 1) forwards;
   animation-delay: var(--tile-delay);
 }
 
@@ -149,14 +150,18 @@ body {
 
 .dj-card__tile-motion {
   animation: dj-tile-breathe var(--tile-breathe-duration) ease-in-out infinite;
-  animation-delay: calc(var(--tile-delay) + var(--tile-duration) + var(--tile-breathe-delay));
+  animation-delay: calc(
+    var(--tile-delay) + var(--tile-duration) + var(--tile-breathe-delay)
+  );
 }
 
 .dj-card__tile-wave {
   position: relative;
   overflow: hidden;
   animation: dj-tile-wave var(--grid-wave-duration) ease-in-out infinite;
-  animation-delay: calc(var(--tile-delay) + var(--tile-duration) + 700ms + var(--tile-wave-delay));
+  animation-delay: calc(
+    var(--tile-delay) + var(--tile-duration) + 700ms + var(--tile-wave-delay)
+  );
 }
 
 .dj-card__tile-wave::after {
@@ -165,14 +170,18 @@ body {
   inset: 0;
   z-index: 1;
   border-radius: inherit;
-  background:
-    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.18) 0 1px, transparent 1px),
-    radial-gradient(circle at 70% 65%, rgba(255, 255, 255, 0.12) 0 1px, transparent 1px),
+  background: radial-gradient(
+      circle at 20% 30%,
+      rgba(255, 255, 255, 0.18) 0 1px,
+      transparent 1px
+    ),
+    radial-gradient(
+      circle at 70% 65%,
+      rgba(255, 255, 255, 0.12) 0 1px,
+      transparent 1px
+    ),
     rgba(0, 0, 0, 0.2);
-  background-size:
-    6px 6px,
-    9px 9px,
-    auto;
+  background-size: 6px 6px, 9px 9px, auto;
   backdrop-filter: blur(1px);
   mix-blend-mode: screen;
 }
@@ -211,10 +220,7 @@ body {
   overflow-y: hidden;
   padding-top: 0;
   padding-bottom: 0;
-  transition:
-    max-height 900ms ease,
-    opacity 500ms ease,
-    padding 900ms ease;
+  transition: max-height 900ms ease, opacity 500ms ease, padding 900ms ease;
 }
 
 .home__content--lineup-entering .set-schedule,
@@ -234,8 +240,7 @@ body {
   gap: 1rem;
   opacity: 0;
   transform: translateX(-1.25rem);
-  transition:
-    opacity 650ms ease var(--set-preview-delay),
+  transition: opacity 650ms ease var(--set-preview-delay),
     transform 650ms ease var(--set-preview-delay);
 }
 
@@ -298,14 +303,18 @@ body {
   inset: 0 0 auto;
   height: calc(100% - 1.8rem);
   pointer-events: none;
-  background:
-    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.18) 0 1px, transparent 1px),
-    radial-gradient(circle at 70% 65%, rgba(255, 255, 255, 0.12) 0 1px, transparent 1px),
+  background: radial-gradient(
+      circle at 20% 30%,
+      rgba(255, 255, 255, 0.18) 0 1px,
+      transparent 1px
+    ),
+    radial-gradient(
+      circle at 70% 65%,
+      rgba(255, 255, 255, 0.12) 0 1px,
+      transparent 1px
+    ),
     rgba(0, 0, 0, 0.12);
-  background-size:
-    6px 6px,
-    9px 9px,
-    auto;
+  background-size: 6px 6px, 9px 9px, auto;
   mix-blend-mode: screen;
 }
 
@@ -360,15 +369,21 @@ body {
   }
 
   24% {
-    transform: translate(var(--tile-drift-x-1), var(--tile-drift-y-1)) scale(0.93);
+    transform: translate(var(--tile-drift-x-1), var(--tile-drift-y-1))
+      scale(0.93);
   }
 
   45% {
-    transform: translate(var(--tile-drift-x-2), var(--tile-drift-y-2)) scale(0.85);
+    transform: translate(var(--tile-drift-x-2), var(--tile-drift-y-2))
+      scale(0.85);
   }
 
   70% {
-    transform: translate(calc(var(--tile-drift-x-1) * -0.7), calc(var(--tile-drift-y-2) * -0.7)) scale(1.02);
+    transform: translate(
+        calc(var(--tile-drift-x-1) * -0.7),
+        calc(var(--tile-drift-y-2) * -0.7)
+      )
+      scale(1.02);
   }
 }
 

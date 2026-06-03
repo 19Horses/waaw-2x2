@@ -1,10 +1,10 @@
 // eslint-disable-next-line import/no-unresolved
 import p5 from 'p5';
 import type { CSSProperties } from 'react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import dollydotsFontUrl from '../fonts/dollydots.ttf';
-import type { DJType } from '../queries/useGetDJs';
-import { useGetDJs } from '../queries/useGetDJs';
+import type { SetDJType, SetType } from '../queries/useGetSets';
+import { useGetSets } from '../queries/useGetSets';
 
 const DJ_MOSAIC_SIZE = 7;
 const DJ_MOSAIC_TILES = Array.from({ length: DJ_MOSAIC_SIZE * DJ_MOSAIC_SIZE }, (_, index) => ({
@@ -19,19 +19,105 @@ const getTileDelay = (index: number) => {
   return `${staggerStep * 28}ms`;
 };
 
-const getTileDuration = (index: number) => `${620 + ((index * 31) % 360)}ms`;
+const getTileDuration = (index: number) => `${1200 + ((index * 31) % 700)}ms`;
+
+const getTileBreatheDelay = (index: number) => `${((index * 41 + (index % DJ_MOSAIC_SIZE) * 71) % 49) * 180}ms`;
+
+const getTileBreatheDuration = (index: number) => `${22000 + ((index * 997) % 14000)}ms`;
+
+const getTileDrift = (index: number, salt: number) => `${(((index * salt + salt * 3) % 9) - 4) * 0.065}rem`;
+
+const getTileWaveDelay = (row: number) => `${row * 130}ms`;
+
+const getGridWaveDuration = (dj: SetDJType, gridIndex: number) => {
+  const seed = `${dj._id}-${dj.name}-${gridIndex}`;
+  const hash = Array.from(seed).reduce((total, character) => total + character.charCodeAt(0), 0);
+
+  return `${20 + (hash % 21)}s`;
+};
+
+const getGridTiltDuration = (dj: SetDJType, gridIndex: number) => {
+  const seed = `${dj.name}-${dj._id}-${gridIndex}`;
+  const hash = Array.from(seed).reduce((total, character) => total + character.charCodeAt(0), 0);
+
+  return `${22 + (hash % 17)}s`;
+};
+
+const getOvernightSetOrder = (set: SetType) => {
+  const startTime = Number(set.time.split('-')[0]);
+
+  return startTime === 11 ? 0 : startTime + 1;
+};
+
+const formatSetHour = (hour: number) => {
+  const militaryHour = hour === 11 ? 23 : hour === 12 ? 0 : hour;
+
+  return `${String(militaryHour).padStart(2, '0')}:00`;
+};
+
+const formatSetTime = (time: string) => {
+  const [start, end] = time.split('-').map(Number);
+
+  return `${formatSetHour(start)} - ${formatSetHour(end)}`;
+};
+
+const LINEUP_CYCLE_MS = 300_000;
+const LINEUP_VISIBLE_MS = 60_000;
+const LINEUP_ENTER_SETUP_MS = 50;
+
+type LineupPhase = 'entering' | 'hidden' | 'visible';
 
 function Home() {
-  const { data: djs = [], isLoading, isError } = useGetDJs();
-  const firstDJ = djs[0];
-  const secondDJ = djs[1];
-  const djNames = djs.map((dj) => dj.name).join('\n');
+  const { data: sets = [], isLoading, isError } = useGetSets();
+  const [lineupPhase, setLineupPhase] = useState<LineupPhase>('hidden');
+  const orderedSets = [...sets].sort((firstSet, secondSet) => getOvernightSetOrder(firstSet) - getOvernightSetOrder(secondSet));
+  const featuredSet = orderedSets[0];
+  const otherSets = orderedSets.slice(1);
+  const firstDJ = featuredSet?.djs[0];
+  const secondDJ = featuredSet?.djs[1];
+  const djNames = Array.from(new Set(orderedSets.flatMap((set) => set.djs.map((dj) => dj.name)))).join('\n');
+
+  useEffect(() => {
+    const timeoutIds: Array<ReturnType<typeof setTimeout>> = [];
+
+    const hideLineup = () => {
+      const timeoutId = setTimeout(() => {
+        setLineupPhase('hidden');
+        showLineup();
+      }, LINEUP_VISIBLE_MS);
+
+      timeoutIds.push(timeoutId);
+    };
+
+    const showLineup = () => {
+      const timeoutId = setTimeout(() => {
+        setLineupPhase('entering');
+
+        const enterTimeoutId = setTimeout(() => {
+          setLineupPhase('visible');
+          hideLineup();
+        }, LINEUP_ENTER_SETUP_MS);
+
+        timeoutIds.push(enterTimeoutId);
+      }, LINEUP_CYCLE_MS - LINEUP_VISIBLE_MS);
+
+      timeoutIds.push(timeoutId);
+    };
+
+    showLineup();
+
+    return () => {
+      timeoutIds.forEach((timeoutId) => {
+        clearTimeout(timeoutId);
+      });
+    };
+  }, []);
 
   if (isLoading) {
     return (
       <main className="home">
         <WaawMarquee djNames={djNames} />
-        <p className="home__status">Loading DJs...</p>
+        <p className="home__status">Loading sets...</p>
       </main>
     );
   }
@@ -40,7 +126,7 @@ function Home() {
     return (
       <main className="home">
         <WaawMarquee djNames={djNames} />
-        <p className="home__status">Could not load DJs.</p>
+        <p className="home__status">Could not load sets.</p>
       </main>
     );
   }
@@ -49,23 +135,40 @@ function Home() {
     <main className="home">
       <WaawMarquee djNames={djNames} />
 
-      <section className="home__content" aria-label="DJs">
+      <section className={`home__content home__content--lineup-${lineupPhase}`} aria-label="DJs">
         <div className="dj-matchup">
-          {firstDJ ? <DJCard dj={firstDJ} /> : null}
+          {firstDJ ? <DJCard dj={firstDJ} gridIndex={0} /> : null}
           {firstDJ && secondDJ ? <span className="dj-matchup__x">X</span> : null}
-          {secondDJ ? <DJCard dj={secondDJ} /> : null}
+          {secondDJ ? <DJCard dj={secondDJ} gridIndex={1} /> : null}
         </div>
+
+        {otherSets.length > 0 ? (
+          <div className="set-schedule" aria-label="Upcoming sets">
+            {otherSets.map((set, index) => (
+              <SetPreview key={set._id} set={set} setIndex={index} />
+            ))}
+          </div>
+        ) : null}
       </section>
     </main>
   );
 }
 
 type DJCardProps = {
-  dj: DJType;
+  dj: SetDJType;
+  gridIndex: number;
 };
 
-const DJCard = ({ dj }: DJCardProps) => (
-  <article className="dj-card">
+const DJCard = ({ dj, gridIndex }: DJCardProps) => (
+  <article
+    className="dj-card"
+    style={
+      {
+        '--grid-tilt-duration': getGridTiltDuration(dj, gridIndex),
+        '--grid-wave-duration': getGridWaveDuration(dj, gridIndex),
+      } as CSSProperties
+    }
+  >
     {dj.image ? (
       <div className="dj-card__mosaic" role="img" aria-label={`${dj.name} portrait`}>
         {DJ_MOSAIC_TILES.map((tile) => (
@@ -75,14 +178,25 @@ const DJCard = ({ dj }: DJCardProps) => (
             key={tile.index}
             style={
               {
+                '--tile-breathe-delay': getTileBreatheDelay(tile.index),
+                '--tile-breathe-duration': getTileBreatheDuration(tile.index),
                 '--tile-column': tile.column,
                 '--tile-delay': getTileDelay(tile.index),
+                '--tile-drift-x-1': getTileDrift(tile.index, 13),
+                '--tile-drift-x-2': getTileDrift(tile.index, 29),
+                '--tile-drift-y-1': getTileDrift(tile.index, 19),
+                '--tile-drift-y-2': getTileDrift(tile.index, 37),
                 '--tile-duration': getTileDuration(tile.index),
                 '--tile-row': tile.row,
+                '--tile-wave-delay': getTileWaveDelay(tile.row),
               } as CSSProperties
             }
           >
-            <img className="dj-card__tile-image" src={dj.image} alt="" />
+            <span className="dj-card__tile-motion">
+              <span className="dj-card__tile-wave">
+                <img className="dj-card__tile-image" src={dj.image} alt="" />
+              </span>
+            </span>
           </span>
         ))}
       </div>
@@ -90,6 +204,46 @@ const DJCard = ({ dj }: DJCardProps) => (
     <h2 className="dj-card__name">{dj.name}</h2>
   </article>
 );
+
+type SetPreviewProps = {
+  set: SetType;
+  setIndex: number;
+};
+
+const SetPreview = ({ set, setIndex }: SetPreviewProps) => {
+  const firstSetDJ = set.djs[0];
+  const secondSetDJ = set.djs[1];
+
+  return (
+    <article
+      className={setIndex === 0 ? 'set-preview set-preview--up-next' : 'set-preview'}
+      style={
+        {
+          '--set-preview-delay': `${setIndex * 90}ms`,
+        } as CSSProperties
+      }
+    >
+      <p className="set-preview__time">{formatSetTime(set.time)}</p>
+      <div className="set-preview__body">
+        <div className="set-preview__images">
+          {firstSetDJ ? (
+            <div className="set-preview__dj">
+              {firstSetDJ.image ? <img className="set-preview__image" src={firstSetDJ.image} alt={firstSetDJ.name} /> : null}
+              <p className="set-preview__name">{firstSetDJ.name}</p>
+            </div>
+          ) : null}
+          {firstSetDJ && secondSetDJ ? <span className="set-preview__x">x</span> : null}
+          {secondSetDJ ? (
+            <div className="set-preview__dj">
+              {secondSetDJ.image ? <img className="set-preview__image" src={secondSetDJ.image} alt={secondSetDJ.name} /> : null}
+              <p className="set-preview__name">{secondSetDJ.name}</p>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </article>
+  );
+};
 
 type WaawMarqueeProps = {
   djNames: string;

@@ -84,6 +84,14 @@ const formatSetTime = (time: string) => {
   return `${formatSetHour(start)} - ${formatSetHour(end)}`;
 };
 
+const formatMilitaryTime = (date: Date) =>
+  date.toLocaleTimeString('en-GB', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+
 const splitIntoPairs = <T,>(items: T[]) =>
   items.reduce<T[][]>((pairs, item, index) => {
     if (index % 2 === 0) {
@@ -112,6 +120,8 @@ function Home() {
   const otherSets = orderedSets.slice(1);
   const firstDJ = featuredSet?.djs[0];
   const secondDJ = featuredSet?.djs[1];
+  const nowPlayingDJs =
+    featuredSet?.djs.map((dj) => dj.name).join(' X ') ?? 'TBA';
   const djNames = Array.from(
     new Set(orderedSets.flatMap((set) => set.djs.map((dj) => dj.name)))
   );
@@ -156,6 +166,7 @@ function Home() {
     return (
       <main className="home">
         <WaawMarquee djNames={djNames} />
+        <NowPlaying djNames={nowPlayingDJs} />
         <p className="home__status">Loading sets...</p>
       </main>
     );
@@ -165,6 +176,7 @@ function Home() {
     return (
       <main className="home">
         <WaawMarquee djNames={djNames} />
+        <NowPlaying djNames={nowPlayingDJs} />
         <p className="home__status">Could not load sets.</p>
       </main>
     );
@@ -173,6 +185,7 @@ function Home() {
   return (
     <main className="home">
       <WaawMarquee djNames={djNames} />
+      <NowPlaying djNames={nowPlayingDJs} />
 
       <section
         className={`home__content home__content--lineup-${lineupPhase}`}
@@ -197,6 +210,37 @@ function Home() {
     </main>
   );
 }
+
+type NowPlayingProps = {
+  djNames: string;
+};
+
+const NowPlaying = ({ djNames }: NowPlayingProps) => {
+  const [currentTime, setCurrentTime] = useState(() => new Date());
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, []);
+
+  return (
+    <aside className="now-playing" aria-label="Now playing">
+      <p className="now-playing__label">Now Playing:</p>
+      <p className="now-playing__djs">{djNames}</p>
+      <time
+        className="now-playing__time"
+        dateTime={formatMilitaryTime(currentTime)}
+      >
+        {formatMilitaryTime(currentTime)}
+      </time>
+    </aside>
+  );
+};
 
 type DJCardProps = {
   dj: SetDJType;

@@ -74,6 +74,17 @@ const formatSetTime = (time: string) => {
   return `${formatSetHour(start)} - ${formatSetHour(end)}`;
 };
 
+const splitIntoPairs = <T,>(items: T[]) =>
+  items.reduce<T[][]>((pairs, item, index) => {
+    if (index % 2 === 0) {
+      pairs.push([item]);
+    } else {
+      pairs[pairs.length - 1].push(item);
+    }
+
+    return pairs;
+  }, []);
+
 const LINEUP_CYCLE_MS = 300_000;
 const LINEUP_VISIBLE_MS = 60_000;
 const LINEUP_ENTER_SETUP_MS = 50;
@@ -187,48 +198,51 @@ const DJCard = ({ dj, gridIndex }: DJCardProps) => (
     className="dj-card"
     style={
       {
+        '--dj-name-delay': gridIndex === 0 ? '700ms' : '1100ms',
         '--grid-tilt-duration': getGridTiltDuration(dj, gridIndex),
         '--grid-wave-duration': getGridWaveDuration(dj, gridIndex),
       } as CSSProperties
     }
   >
-    {dj.image ? (
-      <div
-        className="dj-card__mosaic"
-        role="img"
-        aria-label={`${dj.name} portrait`}
-      >
-        {DJ_MOSAIC_TILES.map((tile) => (
-          <span
-            aria-hidden="true"
-            className="dj-card__tile"
-            key={tile.index}
-            style={
-              {
-                '--tile-breathe-delay': getTileBreatheDelay(tile.index),
-                '--tile-breathe-duration': getTileBreatheDuration(tile.index),
-                '--tile-column': tile.column,
-                '--tile-delay': getTileDelay(tile.index),
-                '--tile-drift-x-1': getTileDrift(tile.index, 13),
-                '--tile-drift-x-2': getTileDrift(tile.index, 29),
-                '--tile-drift-y-1': getTileDrift(tile.index, 19),
-                '--tile-drift-y-2': getTileDrift(tile.index, 37),
-                '--tile-duration': getTileDuration(tile.index),
-                '--tile-row': tile.row,
-                '--tile-wave-delay': getTileWaveDelay(tile.row),
-              } as CSSProperties
-            }
-          >
-            <span className="dj-card__tile-motion">
-              <span className="dj-card__tile-wave">
-                <img className="dj-card__tile-image" src={dj.image} alt="" />
+    <div className="dj-card__layout">
+      {dj.image ? (
+        <div
+          className="dj-card__mosaic"
+          role="img"
+          aria-label={`${dj.name} portrait`}
+        >
+          {DJ_MOSAIC_TILES.map((tile) => (
+            <span
+              aria-hidden="true"
+              className="dj-card__tile"
+              key={tile.index}
+              style={
+                {
+                  '--tile-breathe-delay': getTileBreatheDelay(tile.index),
+                  '--tile-breathe-duration': getTileBreatheDuration(tile.index),
+                  '--tile-column': tile.column,
+                  '--tile-delay': getTileDelay(tile.index),
+                  '--tile-drift-x-1': getTileDrift(tile.index, 13),
+                  '--tile-drift-x-2': getTileDrift(tile.index, 29),
+                  '--tile-drift-y-1': getTileDrift(tile.index, 19),
+                  '--tile-drift-y-2': getTileDrift(tile.index, 37),
+                  '--tile-duration': getTileDuration(tile.index),
+                  '--tile-row': tile.row,
+                  '--tile-wave-delay': getTileWaveDelay(tile.row),
+                } as CSSProperties
+              }
+            >
+              <span className="dj-card__tile-motion">
+                <span className="dj-card__tile-wave">
+                  <img className="dj-card__tile-image" src={dj.image} alt="" />
+                </span>
               </span>
             </span>
-          </span>
-        ))}
-      </div>
-    ) : null}
-    <h2 className="dj-card__name">{dj.name}</h2>
+          ))}
+        </div>
+      ) : null}
+      <h2 className="dj-card__name">{dj.name}</h2>
+    </div>
   </article>
 );
 
@@ -398,6 +412,77 @@ const WaawMarquee = ({ djNames }: WaawMarqueeProps) => {
         }
       };
 
+      const drawMobileWaawItem = (x: number, topY: number) => {
+        const titleSize = clamp(canvasHeight * 0.58, 50, 88);
+        const nameSize = clamp(canvasHeight * 0.23, 20, 32);
+        const gap = clamp(canvasWidth * 0.14, 64, 118);
+        const rowGap = nameSize * 0.95;
+        const namePairs = splitIntoPairs(djNamesRef.current);
+        const centerY = topY + canvasHeight / 2;
+        const title = 'WAAW PRESENTS 2x2';
+
+        p.fill(255);
+        if (dollyFont) {
+          p.textFont(dollyFont);
+        }
+        p.textAlign(p.LEFT, p.CENTER);
+        p.textSize(titleSize);
+        p.text(title, x, centerY);
+
+        let pairX = x + p.textWidth(title) + gap;
+
+        if (namePairs.length > 0) {
+          p.push();
+          p.textFont('Georgia');
+          p.fill(255);
+          p.textAlign(p.LEFT, p.CENTER);
+          p.textSize(nameSize);
+
+          namePairs.forEach((pair) => {
+            const firstName = pair[0]?.toUpperCase() ?? '';
+            const secondName = pair[1]?.toUpperCase() ?? '';
+
+            p.text(firstName, pairX, centerY - rowGap / 2);
+            p.text(secondName, pairX, centerY + rowGap / 2);
+
+            pairX +=
+              Math.max(p.textWidth(firstName), p.textWidth(secondName)) +
+              gap * 0.32;
+          });
+          p.pop();
+        }
+      };
+
+      const getMobileWaawItemWidth = () => {
+        const titleSize = clamp(canvasHeight * 0.58, 50, 88);
+        const nameSize = clamp(canvasHeight * 0.23, 20, 32);
+        const gap = clamp(canvasWidth * 0.14, 64, 118);
+        const namePairs = splitIntoPairs(djNamesRef.current);
+        const title = 'WAAW PRESENTS 2x2';
+        let width = 0;
+
+        p.push();
+        if (dollyFont) {
+          p.textFont(dollyFont);
+        }
+        p.textSize(titleSize);
+        width = p.textWidth(title) + gap;
+
+        p.textFont('Georgia');
+        p.textSize(nameSize);
+        namePairs.forEach((pair) => {
+          const firstName = pair[0]?.toUpperCase() ?? '';
+          const secondName = pair[1]?.toUpperCase() ?? '';
+
+          width +=
+            Math.max(p.textWidth(firstName), p.textWidth(secondName)) +
+            gap * 0.32;
+        });
+        p.pop();
+
+        return width;
+      };
+
       p.setup = () => {
         const rect = root.getBoundingClientRect();
         canvasWidth = rect.width;
@@ -412,6 +497,28 @@ const WaawMarquee = ({ djNames }: WaawMarqueeProps) => {
       };
 
       p.draw = () => {
+        const isMobileStrip = canvasWidth > canvasHeight * 1.4;
+
+        if (isMobileStrip) {
+          const itemWidth = getMobileWaawItemWidth();
+          const gap = clamp(canvasWidth * 0.2, 96, 180);
+          const cycleWidth = itemWidth + gap;
+          const scrollSpeed = cycleWidth / 95;
+          const offset = ((p.millis() / 1000) * scrollSpeed) % cycleWidth;
+
+          p.clear();
+
+          for (
+            let x = -offset - cycleWidth;
+            x < canvasWidth + cycleWidth;
+            x += cycleWidth
+          ) {
+            drawMobileWaawItem(x, 0);
+          }
+
+          return;
+        }
+
         const waawSize = clamp(canvasWidth * 0.82, 112, 304);
         const columnWidth = waawSize * 0.58;
         const letterStep = waawSize * 0.8;

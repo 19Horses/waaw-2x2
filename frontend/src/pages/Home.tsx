@@ -75,7 +75,7 @@ function Home() {
   const otherSets = orderedSets.slice(1);
   const firstDJ = featuredSet?.djs[0];
   const secondDJ = featuredSet?.djs[1];
-  const djNames = Array.from(new Set(orderedSets.flatMap((set) => set.djs.map((dj) => dj.name)))).join('\n');
+  const djNames = Array.from(new Set(orderedSets.flatMap((set) => set.djs.map((dj) => dj.name))));
 
   useEffect(() => {
     const timeoutIds: Array<ReturnType<typeof setTimeout>> = [];
@@ -246,15 +246,19 @@ const SetPreview = ({ set, setIndex }: SetPreviewProps) => {
 };
 
 type WaawMarqueeProps = {
-  djNames: string;
+  djNames: string[];
 };
 
 const WaawMarquee = ({ djNames }: WaawMarqueeProps) => {
   const sketchRootRef = useRef<HTMLDivElement>(null);
+  const djNamesRef = useRef<string[]>(djNames);
+
+  useEffect(() => {
+    djNamesRef.current = djNames;
+  }, [djNames]);
 
   useEffect(() => {
     const root = sketchRootRef.current;
-    const djNameList = djNames.split('\n').filter(Boolean);
 
     if (!root) {
       return undefined;
@@ -294,10 +298,10 @@ const WaawMarquee = ({ djNames }: WaawMarqueeProps) => {
         const presenterGap = clamp(canvasHeight * 0.02, 12, 24);
         const presenterY = y + wordHeight + presenterGap;
         const twoByTwoY = presenterY + columnWidth * 0.32;
-        const namesY = twoByTwoY + columnWidth * 0.72;
-        const nameWidth = canvasWidth * 0.92;
-        const nameFontSize = clamp(canvasWidth * 0.13, 20, 46);
-        const nameLineHeight = nameFontSize * 1.12;
+        const namesY = twoByTwoY + columnWidth * 1.05;
+        const nameWidth = canvasWidth * 0.58;
+        const nameFontSize = clamp(canvasWidth * 0.095, 15, 32);
+        const nameLineHeight = nameFontSize * 1.18;
 
         p.fill(255);
         if (dollyFont) {
@@ -313,15 +317,13 @@ const WaawMarquee = ({ djNames }: WaawMarqueeProps) => {
         drawFittedText('PRESENTS', centerX, presenterY, columnWidth, columnWidth * 0.36);
         drawFittedText('2x2', centerX, twoByTwoY, columnWidth, columnWidth * 0.86);
 
-        if (djNameList.length > 0) {
+        if (djNamesRef.current.length > 0) {
           p.push();
-          if (dollyFont) {
-            p.textFont(dollyFont);
-          }
+          p.textFont('Georgia');
           p.fill(255);
           p.textAlign(p.CENTER, p.TOP);
 
-          djNameList.forEach((name, index) => {
+          djNamesRef.current.forEach((name, index) => {
             drawFittedText(name.toUpperCase(), centerX, namesY + nameLineHeight * index, nameWidth, nameFontSize);
           });
           p.pop();
@@ -347,11 +349,11 @@ const WaawMarquee = ({ djNames }: WaawMarqueeProps) => {
         const letterStep = waawSize * 0.8;
         const wordHeight = waawSize * 0.95 + letterStep * 3;
         const presenterGap = clamp(canvasHeight * 0.02, 12, 24);
-        const nameFontSize = clamp(canvasWidth * 0.13, 20, 46);
-        const nameListHeight = djNameList.length > 0 ? nameFontSize * 1.12 * djNameList.length : 0;
+        const nameFontSize = clamp(canvasWidth * 0.095, 15, 32);
+        const nameListHeight = djNamesRef.current.length > 0 ? nameFontSize * 1.18 * djNamesRef.current.length : 0;
         const presenterStartOffset = Math.max(wordHeight - canvasHeight * 0.2, 0);
         const itemHeight = wordHeight + presenterGap + columnWidth * 1.26 + nameListHeight;
-        const gap = clamp(canvasHeight * 0.42, 256, 576);
+        const gap = clamp(canvasHeight * 0.08, 48, 120);
         const cycleHeight = itemHeight + gap;
         const scrollSpeed = cycleHeight / 110;
         const offset = ((p.millis() / 1000) * scrollSpeed) % cycleHeight;
@@ -372,7 +374,7 @@ const WaawMarquee = ({ djNames }: WaawMarqueeProps) => {
     return () => {
       p5Instance.remove();
     };
-  }, [djNames]);
+  }, []);
 
   return (
     <aside className="waaw-marquee" aria-hidden="true">

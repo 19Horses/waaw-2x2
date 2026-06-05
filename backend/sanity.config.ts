@@ -11,7 +11,7 @@ const structure: StructureResolver = (S) =>
     .items([
       S.listItem()
         .id('currentlyPlaying')
-        .title('Currently Playing')
+        .title('Currently playing')
         .child(S.document().schemaType('currentlyPlaying').documentId('currentlyPlaying')),
       S.divider(),
       ...S.documentTypeListItems().filter(

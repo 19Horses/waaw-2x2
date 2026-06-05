@@ -2,7 +2,7 @@ import {defineField, defineType} from 'sanity'
 
 export const currentlyPlayingType = defineType({
   name: 'currentlyPlaying',
-  title: 'Currently Playing',
+  title: 'Currently playing',
   type: 'document',
   fields: [
     defineField({

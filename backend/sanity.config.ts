@@ -3,7 +3,7 @@ import {structureTool, type StructureResolver} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemaTypes'
 
-const singletonTypes = new Set(['currentlyPlaying'])
+const singletonTypes = new Set(['currentlyPlaying', 'portfolio'])
 
 const structure: StructureResolver = (S) =>
   S.list()
@@ -13,6 +13,10 @@ const structure: StructureResolver = (S) =>
         .id('currentlyPlaying')
         .title('Currently playing')
         .child(S.document().schemaType('currentlyPlaying').documentId('currentlyPlaying')),
+      S.listItem()
+        .id('portfolio')
+        .title('Portfolio')
+        .child(S.document().schemaType('portfolio').documentId('portfolio')),
       S.divider(),
       ...S.documentTypeListItems().filter(
         (listItem) => !singletonTypes.has(listItem.getId() ?? ''),

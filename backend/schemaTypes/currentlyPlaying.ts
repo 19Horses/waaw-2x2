@@ -13,4 +13,9 @@ export const currentlyPlayingType = defineType({
       validation: (rule) => rule.required(),
     }),
   ],
+  preview: {
+    prepare: () => ({
+      title: 'Currently playing',
+    }),
+  },
 })

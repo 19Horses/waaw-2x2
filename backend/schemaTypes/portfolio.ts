@@ -89,4 +89,9 @@ export const portfolioType = defineType({
       validation: (rule) => rule.required(),
     }),
   ],
+  preview: {
+    prepare: () => ({
+      title: 'WAAW',
+    }),
+  },
 })

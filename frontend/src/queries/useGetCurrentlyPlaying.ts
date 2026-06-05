@@ -15,7 +15,6 @@ export const CURRENTLY_PLAYING_QUERY = `
     _id,
     set->{
       _id,
-      time,
       djs[]{
         _key,
         "_id": @->_id,

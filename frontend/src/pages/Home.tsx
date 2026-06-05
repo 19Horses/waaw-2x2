@@ -47,12 +47,6 @@ const getGridWaveDuration = (dj: SetDJType, gridIndex: number) => {
   return `${20 + (hash % 21)}s`;
 };
 
-const getOvernightSetOrder = (set: SetType) => {
-  const startTime = Number(set.time.split('-')[0]);
-
-  return startTime === 11 ? 0 : startTime + 1;
-};
-
 const formatMilitaryTime = (date: Date) =>
   date.toLocaleTimeString('en-GB', {
     hour: '2-digit',
@@ -114,10 +108,7 @@ function Home() {
   const [playedDJIds, setPlayedDJIds] =
     useState<string[]>(getStoredPlayedDJIds);
   const pendingSetRef = useRef<SetType | undefined>();
-  const orderedSets = [...sets].sort(
-    (firstSet, secondSet) =>
-      getOvernightSetOrder(firstSet) - getOvernightSetOrder(secondSet)
-  );
+  const orderedSets = sets;
   const featuredSet = currentlyPlaying?.set ?? orderedSets[0];
   const visibleSet = displayedSet ?? featuredSet;
   const otherSets = orderedSets.filter((set) => set._id !== visibleSet?._id);

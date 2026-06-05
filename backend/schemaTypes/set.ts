@@ -1,7 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
-const hourTimeslotPattern = /^([01]?\d|2[0-3])-([01]?\d|2[0-3])$/
-
 type DjReference = {
   _ref?: string
 }
@@ -11,25 +9,6 @@ export const setType = defineType({
   title: 'Set',
   type: 'document',
   fields: [
-    defineField({
-      name: 'time',
-      title: 'Time',
-      type: 'string',
-      description: 'Hour timeslot, for example 10-11.',
-      validation: (rule) =>
-        rule.required().custom((time) => {
-          const match = time?.match(hourTimeslotPattern)
-
-          if (!match) {
-            return 'Use an hour timeslot like 10-11'
-          }
-
-          const startHour = Number(match[1])
-          const endHour = Number(match[2])
-
-          return endHour === startHour + 1 || 'Timeslot must be exactly one hour'
-        }),
-    }),
     defineField({
       name: 'djs',
       title: 'DJs',
@@ -79,4 +58,13 @@ export const setType = defineType({
           }),
     }),
   ],
+  preview: {
+    select: {
+      firstDJ: 'djs.0.name',
+      secondDJ: 'djs.1.name',
+    },
+    prepare: ({firstDJ, secondDJ}: {firstDJ?: string; secondDJ?: string}) => ({
+      title: [firstDJ, secondDJ].filter(Boolean).join(' - ') || 'Untitled set',
+    }),
+  },
 })

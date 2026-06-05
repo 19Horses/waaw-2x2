@@ -11,14 +11,12 @@ export type SetDJType = {
 
 export type SetType = {
   _id: string;
-  time: string;
   djs: SetDJType[];
 };
 
 export const SETS_QUERY = `
-  *[_type == 'set']{
+  *[_type == 'set'] | order(_createdAt asc){
     _id,
-    time,
     djs[]{
       _key,
       "_id": @->_id,

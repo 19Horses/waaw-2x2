@@ -61,6 +61,28 @@ export const portfolioType = defineType({
       ],
     }),
     defineField({
+      name: 'secretMix',
+      title: 'Secret mix',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'name',
+          title: 'Name',
+          type: 'string',
+          validation: (rule) => rule.required(),
+        }),
+        defineField({
+          name: 'audio',
+          title: 'Audio',
+          type: 'file',
+          options: {
+            accept: 'audio/*',
+          },
+          validation: (rule) => rule.required(),
+        }),
+      ],
+    }),
+    defineField({
       name: 'logo',
       title: 'Logo',
       type: 'image',

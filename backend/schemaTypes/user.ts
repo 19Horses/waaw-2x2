@@ -1,7 +1,7 @@
 import {defineField, defineType} from 'sanity'
 
 export const userType = defineType({
-  name: 'user',
+  name: 'gameUser',
   title: 'User',
   type: 'document',
   initialValue: {

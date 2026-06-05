@@ -3,6 +3,7 @@ import p5 from 'p5';
 import type { CSSProperties } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import dollydotsFontUrl from '../fonts/dollydots.ttf';
+import { useGetCurrentlyPlaying } from '../queries/useGetCurrentlyPlaying';
 import type { SetDJType, SetType } from '../queries/useGetSets';
 import { useGetSets } from '../queries/useGetSets';
 
@@ -106,22 +107,30 @@ const splitIntoPairs = <T,>(items: T[]) =>
 const LINEUP_CYCLE_MS = 300_000;
 const LINEUP_VISIBLE_MS = 60_000;
 const LINEUP_ENTER_SETUP_MS = 50;
+const DJ_GRID_ENTER_MS = 3300;
+const DJ_GRID_EXIT_MS = 3300;
 
 type LineupPhase = 'entering' | 'hidden' | 'visible';
+type DJGridPhase = 'entering' | 'exiting' | 'visible';
 
 function Home() {
   const { data: sets = [], isLoading, isError } = useGetSets();
+  const { data: currentlyPlaying } = useGetCurrentlyPlaying();
   const [lineupPhase, setLineupPhase] = useState<LineupPhase>('hidden');
+  const [displayedSet, setDisplayedSet] = useState<SetType | undefined>();
+  const [djGridPhase, setDJGridPhase] = useState<DJGridPhase>('entering');
+  const pendingSetRef = useRef<SetType | undefined>();
   const orderedSets = [...sets].sort(
     (firstSet, secondSet) =>
       getOvernightSetOrder(firstSet) - getOvernightSetOrder(secondSet)
   );
-  const featuredSet = orderedSets[0];
-  const otherSets = orderedSets.slice(1);
-  const firstDJ = featuredSet?.djs[0];
-  const secondDJ = featuredSet?.djs[1];
+  const featuredSet = currentlyPlaying?.set ?? orderedSets[0];
+  const visibleSet = displayedSet ?? featuredSet;
+  const otherSets = orderedSets.filter((set) => set._id !== visibleSet?._id);
+  const firstDJ = visibleSet?.djs[0];
+  const secondDJ = visibleSet?.djs[1];
   const nowPlayingDJs =
-    featuredSet?.djs.map((dj) => dj.name).join(' X ') ?? 'TBA';
+    visibleSet?.djs.map((dj) => dj.name).join(' X ') ?? 'TBA';
   const djNames = Array.from(
     new Set(orderedSets.flatMap((set) => set.djs.map((dj) => dj.name)))
   );
@@ -162,6 +171,53 @@ function Home() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!featuredSet) {
+      return;
+    }
+
+    setDisplayedSet((currentSet) => {
+      if (!currentSet) {
+        setDJGridPhase('entering');
+        return featuredSet;
+      }
+
+      if (currentSet._id === featuredSet._id) {
+        return featuredSet;
+      }
+
+      pendingSetRef.current = featuredSet;
+      setDJGridPhase('exiting');
+      return currentSet;
+    });
+  }, [featuredSet]);
+
+  useEffect(() => {
+    if (djGridPhase === 'entering') {
+      const timeoutId = window.setTimeout(() => {
+        setDJGridPhase('visible');
+      }, DJ_GRID_ENTER_MS);
+
+      return () => {
+        window.clearTimeout(timeoutId);
+      };
+    }
+
+    if (djGridPhase === 'exiting') {
+      const timeoutId = window.setTimeout(() => {
+        setDisplayedSet(pendingSetRef.current);
+        pendingSetRef.current = undefined;
+        setDJGridPhase('entering');
+      }, DJ_GRID_EXIT_MS);
+
+      return () => {
+        window.clearTimeout(timeoutId);
+      };
+    }
+
+    return undefined;
+  }, [djGridPhase, displayedSet?._id]);
+
   if (isLoading) {
     return (
       <main className="home">
@@ -191,7 +247,10 @@ function Home() {
         className={`home__content home__content--lineup-${lineupPhase}`}
         aria-label="DJs"
       >
-        <div className="dj-matchup">
+        <div
+          className={`dj-matchup dj-matchup--${djGridPhase}`}
+          key={visibleSet?._id ?? 'empty'}
+        >
           {firstDJ ? <DJCard dj={firstDJ} gridIndex={0} /> : null}
           {firstDJ && secondDJ ? (
             <span className="dj-matchup__x">X</span>

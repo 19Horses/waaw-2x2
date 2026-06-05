@@ -155,8 +155,23 @@ body {
   opacity: 0;
   text-transform: uppercase;
   transform: translateY(0.45rem);
+}
+
+.dj-matchup--entering .dj-matchup__x {
   animation: dj-grid-text-fade 900ms ease forwards;
   animation-delay: 900ms;
+}
+
+.dj-matchup--visible .dj-matchup__x {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dj-matchup--exiting .dj-matchup__x {
+  opacity: 1;
+  transform: translateY(0);
+  animation: dj-grid-text-hide 700ms ease forwards;
+  animation-delay: 700ms;
 }
 
 .dj-card {
@@ -193,8 +208,24 @@ body {
   opacity: 0;
   transform: scale(0.16);
   transform-origin: center;
+}
+
+.dj-matchup--entering .dj-card__tile {
   animation: dj-tile-reveal var(--tile-duration)
     cubic-bezier(0.18, 0.92, 0.22, 1) forwards;
+  animation-delay: var(--tile-delay);
+}
+
+.dj-matchup--visible .dj-card__tile {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.dj-matchup--exiting .dj-card__tile {
+  opacity: 1;
+  transform: scale(1);
+  animation: dj-tile-conceal var(--tile-duration)
+    cubic-bezier(0.65, 0, 0.35, 1) forwards;
   animation-delay: var(--tile-delay);
 }
 
@@ -270,7 +301,22 @@ body {
   opacity: 0;
   text-transform: uppercase;
   transform: translateY(0.45rem);
+}
+
+.dj-matchup--entering .dj-card__name {
   animation: dj-grid-text-fade 900ms ease forwards;
+  animation-delay: var(--dj-name-delay, 700ms);
+}
+
+.dj-matchup--visible .dj-card__name {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dj-matchup--exiting .dj-card__name {
+  opacity: 1;
+  transform: translateY(0);
+  animation: dj-grid-text-hide 700ms ease forwards;
   animation-delay: var(--dj-name-delay, 700ms);
 }
 
@@ -474,6 +520,23 @@ body {
   }
 }
 
+@keyframes dj-tile-conceal {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  36% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(0.16);
+  }
+}
+
 @keyframes dj-grid-text-fade {
   0% {
     opacity: 0;
@@ -483,6 +546,18 @@ body {
   100% {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes dj-grid-text-hide {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(0.45rem);
   }
 }
 

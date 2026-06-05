@@ -111,7 +111,8 @@ function Home() {
   const [lineupPhase, setLineupPhase] = useState<LineupPhase>('hidden');
   const [displayedSet, setDisplayedSet] = useState<SetType | undefined>();
   const [djGridPhase, setDJGridPhase] = useState<DJGridPhase>('entering');
-  const [playedDJIds, setPlayedDJIds] = useState<string[]>(getStoredPlayedDJIds);
+  const [playedDJIds, setPlayedDJIds] =
+    useState<string[]>(getStoredPlayedDJIds);
   const pendingSetRef = useRef<SetType | undefined>();
   const orderedSets = [...sets].sort(
     (firstSet, secondSet) =>

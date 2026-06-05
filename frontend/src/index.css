@@ -136,9 +136,7 @@ body {
   justify-items: center;
   transform: translateY(0.35rem) scale(1.025);
   transform-origin: center top;
-  transition:
-    opacity 900ms ease,
-    transform 1200ms ease;
+  transition: opacity 900ms ease, transform 1200ms ease;
 }
 
 .home__content--lineup-visible .dj-matchup {
@@ -247,16 +245,16 @@ body {
 .dj-matchup--exiting .dj-card__tile {
   opacity: 1;
   transform: scale(1);
-  animation: dj-tile-conceal var(--tile-duration)
-    cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  animation: dj-tile-conceal var(--tile-duration) cubic-bezier(0.65, 0, 0.35, 1)
+    forwards;
   animation-delay: var(--tile-delay);
 }
 
 .home__content--lineup-entering .dj-matchup--visible .dj-card__tile {
   opacity: 1;
   transform: scale(1);
-  animation: dj-tile-conceal var(--tile-duration)
-    cubic-bezier(0.65, 0, 0.35, 1) both;
+  animation: dj-tile-conceal var(--tile-duration) cubic-bezier(0.65, 0, 0.35, 1)
+    both;
   animation-delay: var(--tile-delay);
 }
 
@@ -399,9 +397,7 @@ body {
   overflow: hidden;
   pointer-events: none;
   transform: translateY(-44%) scale(0.98);
-  transition:
-    opacity 700ms ease,
-    transform 900ms ease;
+  transition: opacity 700ms ease, transform 900ms ease;
   -webkit-mask-image: linear-gradient(
     90deg,
     transparent,
@@ -434,8 +430,7 @@ body {
   flex: 0 0 clamp(16rem, 23vw, 28rem);
   opacity: 0;
   transform: translateX(2rem);
-  transition:
-    opacity 800ms ease var(--dj-interlude-delay),
+  transition: opacity 800ms ease var(--dj-interlude-delay),
     transform 800ms ease var(--dj-interlude-delay);
 }
 

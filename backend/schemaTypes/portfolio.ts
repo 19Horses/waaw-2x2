@@ -83,6 +83,43 @@ export const portfolioType = defineType({
       ],
     }),
     defineField({
+      name: 'nextParty',
+      title: 'Next party',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'poster',
+          title: 'Poster',
+          type: 'image',
+          validation: (rule) => rule.required(),
+        }),
+        defineField({
+          name: 'link',
+          title: 'Link',
+          type: 'url',
+          validation: (rule) => rule.required().uri({scheme: ['http', 'https']}),
+        }),
+      ],
+    }),
+    defineField({
+      name: 'instagramLink',
+      title: 'Instagram link',
+      type: 'url',
+      validation: (rule) => rule.uri({scheme: ['http', 'https']}),
+    }),
+    defineField({
+      name: 'mixesLink',
+      title: 'Mixes link',
+      type: 'url',
+      validation: (rule) => rule.uri({scheme: ['http', 'https']}),
+    }),
+    defineField({
+      name: 'upcomingLink',
+      title: 'Upcoming link',
+      type: 'url',
+      validation: (rule) => rule.uri({scheme: ['http', 'https']}),
+    }),
+    defineField({
       name: 'logo',
       title: 'Logo',
       type: 'image',

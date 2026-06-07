@@ -79,7 +79,7 @@ const getUniqueDJs = (djs: SetDJType[]) =>
       .values()
   );
 
-const LINEUP_CYCLE_MS = 300_000;
+const LINEUP_CYCLE_MS = 1_800_000;
 const LINEUP_VISIBLE_MS = 60_000;
 const DJ_GRID_ENTER_MS = 3300;
 const DJ_GRID_EXIT_MS = 3300;

@@ -452,16 +452,22 @@ const WaawMarquee = ({ djNames }: WaawMarqueeProps) => {
         p.pop();
       };
 
-      const drawWaawItem = (centerX: number, y: number) => {
-        const waawSize = clamp(canvasWidth * 0.82, 112, 304);
-        const columnWidth = waawSize * 0.58;
+      const getWaawLayout = () => {
+        const waawSize = clamp(canvasWidth * 0.82, 108, 295);
         const letterStep = waawSize * 0.8;
         const wordHeight = waawSize * 0.95 + letterStep * 3;
+        const columnWidth = waawSize * 0.58;
+        return { waawSize, letterStep, wordHeight, columnWidth };
+      };
+
+      const drawWaawItem = (centerX: number, y: number) => {
+        const { waawSize, letterStep, wordHeight, columnWidth } =
+          getWaawLayout();
+        const nameWidth = canvasWidth * 0.58;
         const presenterGap = clamp(canvasHeight * 0.02, 12, 24);
         const presenterY = y + wordHeight + presenterGap;
         const twoByTwoY = presenterY + columnWidth * 0.32;
         const namesY = twoByTwoY + columnWidth * 1.05;
-        const nameWidth = canvasWidth * 0.58;
         const nameFontSize = clamp(canvasWidth * 0.095, 15, 32);
         const nameLineHeight = nameFontSize * 1.18;
 
@@ -470,24 +476,31 @@ const WaawMarquee = ({ djNames }: WaawMarqueeProps) => {
           p.textFont(dollyFont);
         }
         p.textAlign(p.CENTER, p.TOP);
-        p.textSize(waawSize);
 
-        ['W', 'A', 'A', 'W'].forEach((letter, index) => {
-          p.text(letter, centerX, y + letterStep * index);
+        const waawX = centerX + nameWidth * 0.05;
+
+        (['W', 'A', 'A', 'W'] as const).forEach((letter, index) => {
+          p.textSize(waawSize);
+          p.text(letter, waawX, y + letterStep * index);
         });
 
+        p.textFont('Georgia');
         drawFittedText(
           'PRESENTS',
           centerX,
           presenterY,
-          columnWidth,
+          nameWidth,
           columnWidth * 0.36
         );
+
+        if (dollyFont) {
+          p.textFont(dollyFont);
+        }
         drawFittedText(
           '2x2',
           centerX,
           twoByTwoY,
-          columnWidth,
+          nameWidth,
           columnWidth * 0.86
         );
 
@@ -617,10 +630,7 @@ const WaawMarquee = ({ djNames }: WaawMarqueeProps) => {
           return;
         }
 
-        const waawSize = clamp(canvasWidth * 0.82, 112, 304);
-        const columnWidth = waawSize * 0.58;
-        const letterStep = waawSize * 0.8;
-        const wordHeight = waawSize * 0.95 + letterStep * 3;
+        const { wordHeight, columnWidth } = getWaawLayout();
         const presenterGap = clamp(canvasHeight * 0.02, 12, 24);
         const nameFontSize = clamp(canvasWidth * 0.095, 15, 32);
         const nameListHeight =

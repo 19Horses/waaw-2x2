@@ -100,7 +100,8 @@ const getStoredPlayedDJIds = () => {
 };
 
 function Home() {
-  const { data: sets = [], isLoading, isError } = useGetSets();
+  const { data, isLoading, isError } = useGetSets();
+  const sets: SetType[] = data ?? [];
   const { data: currentlyPlaying } = useGetCurrentlyPlaying();
   const [lineupPhase, setLineupPhase] = useState<LineupPhase>('hidden');
   const [displayedSet, setDisplayedSet] = useState<SetType | undefined>();
@@ -109,7 +110,8 @@ function Home() {
     useState<string[]>(getStoredPlayedDJIds);
   const pendingSetRef = useRef<SetType | undefined>();
   const orderedSets = sets;
-  const featuredSet = currentlyPlaying?.set ?? orderedSets[0];
+  const featuredSet: SetType | undefined =
+    currentlyPlaying?.set ?? orderedSets[0];
   const visibleSet = displayedSet ?? featuredSet;
   const otherSets = orderedSets.filter((set) => set._id !== visibleSet?._id);
   const nonPlayingDJs = getUniqueDJs(otherSets.flatMap((set) => set.djs));
@@ -117,7 +119,7 @@ function Home() {
   const secondDJ = visibleSet?.djs[1];
   const nowPlayingDJs =
     visibleSet?.djs.map((dj) => dj.name).join(' X ') ?? 'TBA';
-  const djNames = Array.from(
+  const djNames: string[] = Array.from(
     new Set(orderedSets.flatMap((set) => set.djs.map((dj) => dj.name)))
   );
 

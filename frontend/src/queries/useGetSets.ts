@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { getApiUrl } from '../sanityIntegration';
 import axios from 'axios';
 
@@ -31,8 +31,8 @@ export const getSets = async (): Promise<{ result: SetType[] }> => {
   return response.data;
 };
 
-export const useGetSets = () => {
-  return useQuery({
+export const useGetSets = (): UseQueryResult<SetType[], Error> => {
+  return useQuery<{ result: SetType[] }, Error, SetType[]>({
     queryKey: ['sets'],
     queryFn: getSets,
     select: (res) => res.result,

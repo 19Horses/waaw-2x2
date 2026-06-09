@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import axios from 'axios';
 import { getApiUrl } from '../sanityIntegration';
 import type { SetType } from './useGetSets';
@@ -32,8 +32,15 @@ export const getCurrentlyPlaying = async (): Promise<{
   return response.data;
 };
 
-export const useGetCurrentlyPlaying = () => {
-  return useQuery({
+export const useGetCurrentlyPlaying = (): UseQueryResult<
+  CurrentlyPlayingType | null,
+  Error
+> => {
+  return useQuery<
+    { result: CurrentlyPlayingType | null },
+    Error,
+    CurrentlyPlayingType | null
+  >({
     queryKey: ['currentlyPlaying'],
     queryFn: getCurrentlyPlaying,
     refetchInterval: CURRENTLY_PLAYING_REFETCH_INTERVAL_MS,

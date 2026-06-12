@@ -5,8 +5,8 @@ import {
 } from './useGetCurrentlyPlaying';
 
 describe('currently playing query', () => {
-  test('polls Sanity every 30 seconds', () => {
-    expect(CURRENTLY_PLAYING_REFETCH_INTERVAL_MS).toBe(30_000);
+  test('polls Sanity every 10 seconds', () => {
+    expect(CURRENTLY_PLAYING_REFETCH_INTERVAL_MS).toBe(10_000);
   });
 
   test('expands the referenced set and its DJs', () => {

@@ -166,7 +166,7 @@ body {
 }
 
 .dj-matchup--entering .dj-matchup__x {
-  animation: dj-grid-text-fade 900ms ease forwards;
+  animation: dj-text-fade 900ms ease forwards;
   animation-delay: 900ms;
 }
 
@@ -178,14 +178,14 @@ body {
 .dj-matchup--exiting .dj-matchup__x {
   opacity: 1;
   transform: translateY(0);
-  animation: dj-grid-text-hide 700ms ease forwards;
+  animation: dj-text-hide 700ms ease forwards;
   animation-delay: 700ms;
 }
 
 .home__content--lineup-entering .dj-matchup--visible .dj-matchup__x {
   opacity: 1;
   transform: translateY(0);
-  animation: dj-grid-text-hide 700ms ease forwards;
+  animation: dj-text-hide 700ms ease forwards;
   animation-delay: 700ms;
 }
 
@@ -195,12 +195,11 @@ body {
 }
 
 .home__content--lineup-exiting .dj-matchup--visible .dj-matchup__x {
-  animation: dj-grid-text-fade 900ms ease both;
+  animation: dj-text-fade 900ms ease both;
   animation-delay: 900ms;
 }
 
 .dj-card {
-  perspective: 1200px;
   width: min(100%, 58rem);
   justify-self: center;
 }
@@ -212,6 +211,7 @@ body {
 }
 
 .dj-card__mosaic {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   grid-template-rows: repeat(7, 1fr);
@@ -219,6 +219,18 @@ body {
   width: min(100%, 58rem, calc(100vh - 13rem));
   aspect-ratio: 1;
   transform-origin: center;
+  isolation: isolate;
+}
+
+.dj-card__mosaic::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(0.75px);
+  -webkit-backdrop-filter: blur(0.75px);
 }
 
 .dj-card__tile {
@@ -233,8 +245,7 @@ body {
 }
 
 .dj-matchup--entering .dj-card__tile {
-  animation: dj-tile-reveal var(--tile-duration)
-    cubic-bezier(0.18, 0.92, 0.22, 1) forwards;
+  animation: dj-tile-reveal var(--tile-duration) ease forwards;
   animation-delay: var(--tile-delay);
 }
 
@@ -246,16 +257,14 @@ body {
 .dj-matchup--exiting .dj-card__tile {
   opacity: 1;
   transform: scale(1);
-  animation: dj-tile-conceal var(--tile-duration) cubic-bezier(0.65, 0, 0.35, 1)
-    forwards;
+  animation: dj-tile-conceal var(--tile-duration) ease forwards;
   animation-delay: var(--tile-delay);
 }
 
 .home__content--lineup-entering .dj-matchup--visible .dj-card__tile {
   opacity: 1;
   transform: scale(1);
-  animation: dj-tile-conceal var(--tile-duration) cubic-bezier(0.65, 0, 0.35, 1)
-    both;
+  animation: dj-tile-conceal var(--tile-duration) ease both;
   animation-delay: var(--tile-delay);
 }
 
@@ -265,12 +274,11 @@ body {
 }
 
 .home__content--lineup-exiting .dj-matchup--visible .dj-card__tile {
-  animation: dj-tile-reveal var(--tile-duration)
-    cubic-bezier(0.18, 0.92, 0.22, 1) both;
+  animation: dj-tile-reveal var(--tile-duration) ease both;
   animation-delay: var(--tile-delay);
 }
 
-.dj-card__tile-motion,
+.dj-card__tile-inner,
 .dj-card__tile-wave {
   display: block;
   width: 100%;
@@ -279,23 +287,26 @@ body {
   transform-origin: center;
 }
 
-.dj-card__tile-motion {
+.dj-card__tile-wave {
+  position: relative;
+  overflow: hidden;
+}
+
+.dj-matchup--visible .dj-card__tile-inner {
   animation: dj-tile-breathe var(--tile-breathe-duration) ease-in-out infinite;
   animation-delay: calc(
     var(--tile-delay) + var(--tile-duration) + var(--tile-breathe-delay)
   );
 }
 
-.dj-card__tile-wave {
-  position: relative;
-  overflow: hidden;
+.dj-matchup--visible .dj-card__tile-wave {
   animation: dj-tile-wave var(--grid-wave-duration) ease-in-out infinite;
   animation-delay: calc(
     var(--tile-delay) + var(--tile-duration) + 700ms + var(--tile-wave-delay)
   );
 }
 
-.dj-card__tile-wave::after {
+.dj-card__tile::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -303,18 +314,12 @@ body {
   border-radius: inherit;
   background: radial-gradient(
       circle at 20% 30%,
-      rgba(255, 255, 255, 0.18) 0 1px,
+      rgba(255, 255, 255, 0.1) 0 1px,
       transparent 1px
     ),
-    radial-gradient(
-      circle at 70% 65%,
-      rgba(255, 255, 255, 0.12) 0 1px,
-      transparent 1px
-    ),
-    rgba(0, 0, 0, 0.2);
-  background-size: 6px 6px, 9px 9px, auto;
-  backdrop-filter: blur(1px);
-  mix-blend-mode: screen;
+    rgba(0, 0, 0, 0.16);
+  background-size: 8px 8px, auto;
+  pointer-events: none;
 }
 
 .dj-card__tile-image {
@@ -348,7 +353,7 @@ body {
 }
 
 .dj-matchup--entering .dj-card__name {
-  animation: dj-name-text-fade 900ms ease forwards;
+  animation: dj-text-fade 900ms ease forwards;
   animation-delay: var(--dj-name-delay, 700ms);
 }
 
@@ -360,14 +365,14 @@ body {
 .dj-matchup--exiting .dj-card__name {
   opacity: 1;
   transform: translateY(0);
-  animation: dj-name-text-hide 700ms ease forwards;
+  animation: dj-text-hide 700ms ease forwards;
   animation-delay: var(--dj-name-delay, 700ms);
 }
 
 .home__content--lineup-entering .dj-matchup--visible .dj-card__name {
   opacity: 1;
   transform: translateY(0);
-  animation: dj-name-text-hide 700ms ease forwards;
+  animation: dj-text-hide 700ms ease forwards;
   animation-delay: var(--dj-name-delay, 700ms);
 }
 
@@ -377,7 +382,7 @@ body {
 }
 
 .home__content--lineup-exiting .dj-matchup--visible .dj-card__name {
-  animation: dj-name-text-fade 900ms ease both;
+  animation: dj-text-fade 900ms ease both;
   animation-delay: var(--dj-name-delay, 700ms);
 }
 
@@ -519,54 +524,6 @@ body {
   }
 }
 
-@keyframes dj-grid-text-fade {
-  0% {
-    opacity: 0;
-    transform: translateY(0.45rem);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes dj-grid-text-hide {
-  0% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  100% {
-    opacity: 0;
-    transform: translateY(0.45rem);
-  }
-}
-
-@keyframes dj-name-text-fade {
-  0% {
-    opacity: 0;
-    transform: translateY(0.45rem);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes dj-name-text-hide {
-  0% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  100% {
-    opacity: 0;
-    transform: translateY(0.45rem);
-  }
-}
-
 @keyframes dj-tile-breathe {
   0%,
   100% {
@@ -611,6 +568,30 @@ body {
   }
 }
 
+@keyframes dj-text-fade {
+  from {
+    opacity: 0;
+    transform: translateY(0.45rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dj-text-hide {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(0.45rem);
+  }
+}
+
 @keyframes now-playing-fade-in {
   0% {
     opacity: 0;
@@ -620,6 +601,41 @@ body {
   100% {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dj-matchup,
+  .dj-matchup__x,
+  .dj-card__tile,
+  .dj-card__tile-inner,
+  .dj-card__tile-wave,
+  .dj-card__name,
+  .dj-interlude,
+  .dj-interlude__track,
+  .dj-interlude__card,
+  .now-playing__label,
+  .now-playing__djs,
+  .now-playing__time {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .dj-matchup--visible .dj-matchup__x,
+  .dj-matchup--visible .dj-card__tile,
+  .dj-matchup--visible .dj-card__tile-inner,
+  .dj-matchup--visible .dj-card__tile-wave,
+  .dj-matchup--visible .dj-card__name,
+  .now-playing__label,
+  .now-playing__djs,
+  .now-playing__time {
+    opacity: 1;
+    transform: none;
+  }
+
+  .dj-card__mosaic::after {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 }
 

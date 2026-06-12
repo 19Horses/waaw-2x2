@@ -118,7 +118,7 @@ function Home() {
   const firstDJ = visibleSet?.djs[0];
   const secondDJ = visibleSet?.djs[1];
   const nowPlayingDJs =
-    visibleSet?.djs.map((dj) => dj.name).join(' X ') ?? 'TBA';
+    featuredSet?.djs.map((dj) => dj.name).join(' X ') ?? 'TBA';
   const djNames: string[] = Array.from(
     new Set(orderedSets.flatMap((set) => set.djs.map((dj) => dj.name)))
   );
@@ -347,7 +347,7 @@ const DJCard = ({ dj, gridIndex }: DJCardProps) => (
                 } as CSSProperties
               }
             >
-              <span className="dj-card__tile-motion">
+              <span className="dj-card__tile-inner">
                 <span className="dj-card__tile-wave">
                   <img className="dj-card__tile-image" src={dj.image} alt="" />
                 </span>

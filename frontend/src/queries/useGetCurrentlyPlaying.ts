@@ -8,7 +8,7 @@ export type CurrentlyPlayingType = {
   set: SetType | null;
 };
 
-export const CURRENTLY_PLAYING_REFETCH_INTERVAL_MS = 30_000;
+export const CURRENTLY_PLAYING_REFETCH_INTERVAL_MS = 10_000;
 
 export const CURRENTLY_PLAYING_QUERY = `
   *[_type == 'currentlyPlaying' && _id == 'currentlyPlaying'][0]{
